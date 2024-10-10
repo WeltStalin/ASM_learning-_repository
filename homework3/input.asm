@@ -4,7 +4,7 @@
     Msg1 db "Your input is: $"
     Msg2 db "The sum is: $"
 
-    input db 10 DUP (0)
+    input db 10,0
     buf1 db 4 DUP (0),'$'
     buf2 db 4 DUP (0),'$'
 
@@ -24,80 +24,6 @@
     MOV  DX, OFFSET input 
     MOV  AH, 0AH 
     INT  21H
-
-
-
-        MOV AH,02h
-        MOV DL,0Ah
-        INT 21h
-
-        MOV DL,[input+0]
-        ADD DL,40
-        INT 21h
-        MOV DL,[input+1]
-        ADD DL,40
-        INT 21h
-        MOV DL,[input+2]
-        ADD DL,40
-        INT 21h
-        MOV DL,[input+3]
-        ADD DL,40
-        INT 21h
-        MOV DL,[input+4]
-        ADD DL,40
-        INT 21h
-        MOV DL,[input+5]
-        ADD DL,40
-        INT 21h
-        MOV DL,[input+6]
-        ADD DL,40
-        INT 21h
-
-        MOV DL,0Ah
-        INT 21h
-
-
-
-        MOV AH,02h
-        MOV DL,0Ah
-        INT 21h
-
-        MOV DL,[buf1+0]
-        ADD DL,40
-        INT 21h
-        MOV DL,[buf1+1]
-        ADD DL,40
-        INT 21h
-        MOV DL,[buf1+2]
-        ADD DL,40
-        INT 21h
-        MOV DL,[buf1+3]
-        ADD DL,40
-        INT 21h
-
-        MOV DL,0Ah
-        INT 21h
-
-
-        MOV AH,02h
-        MOV DL,0Ah
-        INT 21h
-
-        MOV DL,[buf2+0]
-        ADD DL,40
-        INT 21h
-        MOV DL,[buf2+1]
-        ADD DL,40
-        INT 21h
-        MOV DL,[buf2+2]
-        ADD DL,40
-        INT 21h
-        MOV DL,[buf2+3]
-        ADD DL,40
-        INT 21h
-
-        MOV DL,0Ah
-        INT 21h
 
     MOV  CX, 0
     MOV  CL, [input + 1]
