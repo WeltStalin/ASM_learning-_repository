@@ -1,0 +1,211 @@
+Microsoft (R) Macro Assembler Version 5.00                  12/25/24 13:37:46
+                                                             Page     1-1
+
+
+				.model small 
+ 0000				.data 
+ 0000  07 02 03 04 05 06 07	    table  db 7,2,3,4,5,6,7,8,9             ;9*
+				9表数据 
+       08 09			
+ 0009  02 04 07 08 0A 0C 0E	           db 2,4,7,8,10,12,14,16,18 
+       10 12			
+ 0012  03 06 09 0C 0F 12 15	           db 3,6,9,12,15,18,21,24,27 
+       18 1B			
+ 001B  04 08 0C 10 07 18 1C	           db 4,8,12,16,7,24,28,32,36 
+       20 24			
+ 0024  05 0A 0F 14 19 1E 23	           db 5,10,15,20,25,30,35,40,45 
+       28 2D			
+ 002D  06 0C 12 18 1E 07 2A	           db 6,12,18,24,30,7,42,48,54 
+       30 36			
+ 0036  07 0E 15 1C 23 2A 31	           db 7,14,21,28,35,42,49,56,63 
+       38 3F			
+ 003F  08 10 18 20 28 30 38	           db 8,16,24,32,40,48,56,7,72 
+       07 48			
+ 0048  09 12 1B 24 2D 36 3F	           db 9,18,27,36,45,54,63,72,81 
+       48 51			
+ 0051  65 72 72 6F 72 20 61	    msg1   db 'error at: $' 
+       74 3A 20 24		
+ 005C  20 78 20 24		    msg2   db ' x $' 
+ 0060  61 63 63 6F 6D 70 6C	    accomplish db 'accomplish!$' 
+       69 73 68 21 24		
+ 006C  0D 0A 24			    newline db 0Dh,0Ah,'$' 
+ 006F  20 24			    space  db ' $' 
+ 0071  0A			    ten    db 10 
+ 0072  00 00 24			    num    db 0,0,'$'     ; 存储待显示数�
+				��的十位和个位 
+				 
+ 0000				.code 
+ 0000				START: 
+ 0000  B8 ---- R		    MOV AX,@DATA 
+ 0003  8E D8			    MOV DS,AX 
+				 
+ 0005  BE 0000			    mov si, 0          ; 表格行索引 
+ 0008  B3 01			    mov bl, 1          ; 当前行数（1-9） 
+ 000A				row_loop: 
+ 000A  B7 01			    mov bh, 1          ; 当前列数（1-9） 
+ 000C  8B FE			    mov di, si         ; di用于在当前行�
+				�移动 
+ 000E				col_loop: 
+				    ; 计算正确的乘积 
+ 000E  8A C3			    mov al, bl         ; 第一个数（行号�
+				�� 
+ 0010  F6 E7			    mul bh            ; 乘以第二个数（�
+				�号） 
+				    ; 比较计算结果与表中的值 
+ 0012  3A 85 0000 R		    cmp al, [table+di] 
+ 0016  74 24			    je next_col       ; 如果相等，检查�
+				�一个 
+				 
+Microsoft (R) Macro Assembler Version 5.00                  12/25/24 13:37:46
+                                                             Page     1-2
+
+
+				    ; 如果不相等，打印错误信息 
+ 0018  53			    push bx           ; 保存bx 
+				     
+				    ; 打印 "error at: " 
+ 0019  8D 16 0051 R		    lea dx, msg1 
+ 001D  B4 09			    mov ah, 09h 
+ 001F  CD 21			    int 21h 
+				     
+				    ; 打印行号 
+ 0021  8A C3			    mov al, bl 
+ 0023  E8 0063 R		    call print_number 
+				     
+				    ; 打印 " x " 
+ 0026  8D 16 005C R		    lea dx, msg2 
+ 002A  B4 09			    mov ah, 09h 
+ 002C  CD 21			    int 21h 
+				     
+				    ; 打印列号 
+ 002E  8A C7			    mov al, bh 
+ 0030  E8 0063 R		    call print_number 
+				     
+				    ; 打印换行 
+ 0033  8D 16 006C R		    lea dx, newline 
+ 0037  B4 09			    mov ah, 09h 
+ 0039  CD 21			    int 21h 
+				     
+ 003B  5B			    pop bx            ; 恢复bx 
+				 
+ 003C				next_col: 
+ 003C  47			    inc di           ; 移动到下一列 
+ 003D  FE C7			    inc bh           ; 列号加1 
+ 003F  80 FF 09			    cmp bh, 9 
+ 0042  76 CA			    jbe col_loop     ; 如果列号<=9，继续
+				检查 
+				 
+ 0044  83 C6 09			    add si, 9        ; 移动到下一行 
+ 0047  FE C3			    inc bl           ; 行号加1 
+ 0049  80 FB 09			    cmp bl, 9 
+ 004C  76 BC			    jbe row_loop     ; 如果行号<=9，继续
+				检查 
+				 
+				    ; 打印 "accomplish!" 
+ 004E  8D 16 0060 R		    lea dx, accomplish 
+ 0052  B4 09			    mov ah, 09h 
+ 0054  CD 21			    int 21h 
+				     
+				    ; 打印最后的换行 
+ 0056  8D 16 006C R		    lea dx, newline 
+ 005A  B4 09			    mov ah, 09h 
+ 005C  CD 21			    int 21h 
+				 
+ 005E  B8 4C00			    MOV AX,4C00H 
+ 0061  CD 21			    INT 21h 
+				 
+Microsoft (R) Macro Assembler Version 5.00                  12/25/24 13:37:46
+                                                             Page     1-3
+
+
+				; 打印数字的子程序 
+				; 输入：AL = 要打印的数字 
+ 0063				print_number proc 
+ 0063  52			    push dx 
+ 0064  51			    push cx 
+ 0065  50			    push ax 
+				     
+ 0066  32 E4			    xor ah, ah            ; 清空ah，为除�
+				�准备 
+ 0068  F6 36 0071 R		    div [ten]             ; 除以10，商在al
+				中，余数在ah中 
+ 006C  88 26 0072 R		    mov [num], ah         ; 保存余数（个�
+				��） 
+ 0070  A2 0073 R		    mov [num+1], al       ; 保存商（十位�
+				�� 
+				     
+				    ; 转换为ASCII码 
+ 0073  80 06 0072 R 30		    add [num], '0' 
+ 0078  80 06 0073 R 30		    add [num+1], '0' 
+				     
+				    ; 处理十位数字 
+ 007D  80 3E 0073 R 30		    cmp byte ptr [num+1], '0' 
+ 0082  74 08			    je skip_tens 
+ 0084  8A 16 0073 R		    mov dl, [num+1] 
+ 0088  B4 02			    mov ah, 02h 
+ 008A  CD 21			    int 21h 
+ 008C				skip_tens: 
+				    ; 显示个位数字 
+ 008C  8A 16 0072 R		    mov dl, [num] 
+ 0090  B4 02			    mov ah, 02h 
+ 0092  CD 21			    int 21h 
+				     
+ 0094  58			    pop ax 
+ 0095  59			    pop cx 
+ 0096  5A			    pop dx 
+ 0097  C3			    ret 
+ 0098				print_number endp 
+				 
+ 0098				END START 
+Microsoft (R) Macro Assembler Version 5.00                  12/25/24 13:37:46
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+DGROUP . . . . . . . . . . . . .  	GROUP
+  _DATA  . . . . . . . . . . . .  	0075	WORD	PUBLIC	'DATA'
+_TEXT  . . . . . . . . . . . . .  	0098	WORD	PUBLIC	'CODE'
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+ACCOMPLISH . . . . . . . . . . .  	L BYTE	0060	_DATA
+
+COL_LOOP . . . . . . . . . . . .  	L NEAR	000E	_TEXT
+
+MSG1 . . . . . . . . . . . . . .  	L BYTE	0051	_DATA
+MSG2 . . . . . . . . . . . . . .  	L BYTE	005C	_DATA
+
+NEWLINE  . . . . . . . . . . . .  	L BYTE	006C	_DATA
+NEXT_COL . . . . . . . . . . . .  	L NEAR	003C	_TEXT
+NUM  . . . . . . . . . . . . . .  	L BYTE	0072	_DATA
+
+PRINT_NUMBER . . . . . . . . . .  	N PROC	0063	_TEXT	Length = 0035
+
+ROW_LOOP . . . . . . . . . . . .  	L NEAR	000A	_TEXT
+
+SKIP_TENS  . . . . . . . . . . .  	L NEAR	008C	_TEXT
+SPACE  . . . . . . . . . . . . .  	L BYTE	006F	_DATA
+START  . . . . . . . . . . . . .  	L NEAR	0000	_TEXT
+
+TABLE  . . . . . . . . . . . . .  	L BYTE	0000	_DATA
+TEN  . . . . . . . . . . . . . .  	L BYTE	0071	_DATA
+
+@CODE  . . . . . . . . . . . . .  	TEXT  _TEXT		
+@CODESIZE  . . . . . . . . . . .  	TEXT  0		
+@DATASIZE  . . . . . . . . . . .  	TEXT  0		
+@FILENAME  . . . . . . . . . . .  	TEXT  multip~1		
+
+
+    124 Source  Lines
+    124 Total   Lines
+     27 Symbols
+
+  50954 + 465590 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors
